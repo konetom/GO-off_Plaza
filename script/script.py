@@ -219,6 +219,7 @@ if __name__ == "__main__":
             if file_without_filters != os.listdir(output_path+wof+"\\")[-1]:
                 driver.get('http://revigo.irb.hr/')
     # last section: filter data based on Revigo reduced GO terms and some additional user defined filters (log2 enrichment, p-value, gene list identity, GO types)
+    # please change the filters if needed
     rev_listd = sorted(os.listdir(output_path+rf))
     filterless_listd = sorted(os.listdir(output_path+wof))
     for rev_file in rev_listd:
