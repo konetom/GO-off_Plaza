@@ -1,6 +1,8 @@
 # GO-off_Plaza
 
 Script for automation of Plaza toolkit for Gene Ontology enrichment analysis on query list of gene IDs.
+    
+Please check my previous script description, where you can find additional information: https://github.com/konetom/GO-off
 
 Introduction
 ------------
@@ -35,5 +37,3 @@ Notes
 Acknowledgment
 -----
 Please visit: https://bioinformatics.psb.ugent.be/plaza/pages/credits.
-    
-Also check my previous script description, where you can find additional information: https://github.com/konetom/GO-off
