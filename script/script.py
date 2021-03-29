@@ -191,7 +191,7 @@ if __name__ == "__main__":
         go_df = pd.read_excel(output_path+wof+"\\"+file_without_filters)
         if go_df.shape[0] != 0:
             for_revigo = go_df.loc[:, ['GO IDs', 'p-value']]
-            driver.find_element_by_xpath('//*[@id="ctl00_MasterContent_txtGOInput"]').send_keys(for_revigo.to_string(index=False, header=False))
+            driver.find_element_by_xpath('//*[@id="ctl00_MasterContent_txtGOInput"]').send_keys(for_revigo.to_string(index=False, header=False).replace(' GO', 'GO').replace('  ', ' '))
             dbase = driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_lstSpecies"]')))
             Select(dbase).select_by_visible_text('Arabidopsis thaliana')
             driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_btnStart"]'))).click()
