@@ -30,7 +30,7 @@ Warnings
 Notes
 -----
     You have to own an active account in Plaza Dicots v4.0. Without it, you cannot run the script.
-    To avoid putting login name and password each time of script running, save login name and password in the "login.py file and define special keyword, that will be used instead of login.
+    To avoid putting login name and password each time of script running, save login name and password in the "login.py file and define special keyword, that will be used instead of typing your login in the terminal.
 
 Acknowledgment
 -----
