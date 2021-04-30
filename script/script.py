@@ -1,3 +1,4 @@
+"another requirement is lxml"
 import os
 import sys
 import re
@@ -115,7 +116,7 @@ if __name__ == "__main__":
             # Import data (gene IDs) to the experiment and map them to Ath
             kill_banner()
             driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, 'Import using gene identifiers'))).click()
-            driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div/div[2]/form/input[3]'))).send_keys(str(input_path+full_name))
+            driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div/div[2]/form/input[3]'))).send_keys(str(os.path.abspath(input_path+"\\"+full_name)))
             kill_banner()
             driver_wait.until(EC.element_to_be_clickable((By.ID, "map_species_check"))).click()
             Select(driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="map_species_select"]')))).select_by_visible_text('Arabidopsis thaliana')
