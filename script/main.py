@@ -12,11 +12,12 @@ from getpass import getpass
 def cli_input():
     import argparse
     parser = argparse.ArgumentParser(description="GO-off_Plaza CLI")
-    parser.add_argument('i', '--input_file', required=True, type=str, help="path to input file")
-    parser.add_argument('t', '--page_timeout', requred=False, type=int, default=300, choices=range(601), help="maximum time in seconds given to each webpage to load (default is 300, maximum 600)")
-    parser.add_argument('g', '--minimum_genes', required=False, type=int, default=3, help="filter for minimum number of genes associated with GO (default is 3)")
+    parser.add_argument('-i', '--input_file', required=True, type=str, help="path to input file")
+    parser.add_argument('-t', '--page_timeout', required=False, type=int, default=300, help="maximum time in seconds given to each webpage to load (default is 300)")
+    parser.add_argument('-c', '--cutoff', required=False, type=float, default=0.01, choices=[0.05, 0.01, 0.001], help="GOEA p-value cutoff (default is 0.01; options are 0.05, 0.01, 0.001)")
+    parser.add_argument('-g', '--minimum_genes', required=False, type=int, default=3, help="filter for minimum number of genes associated with GO (default is 3)")
     argparsed = parser.parse_args()
-    return argparsed.i, argparsed.t, argparsed.g
+    return argparsed.input_file, argparsed.page_timeout, argparsed.cutoff, argparsed.minimum_genes
 
 
 def opj(item1, item2):
@@ -46,19 +47,8 @@ def escape(*message):
     sys.exit()
 
 
-def kill_banner():
-    """Delete the banner. Not deleting it would make issues in next steps."""
-    global driver
-    try:
-        if "Got it!" in driver.page_source:
-            driver.find_element_by_link_text("Got it!").click()
-    except Exception:
-        pass
-    finally:
-        time.sleep(1)
-
-
-def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
+def run_go(file_path=None, wait_period=300, go_cutoff=0.01):
+    hidden_key = input("Key: ")
     if check_and_install():
         import pandas as pd
         from selenium import webdriver
@@ -68,19 +58,18 @@ def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
         from selenium.webdriver.support import expected_conditions as EC
     else:
         escape(check_and_install())
-    hidden_key = input("Key: ")
     url_path = 'https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/workbench/logon'
     # wait_period = 300  # maximum time in seconds given to each webpage to load
     up, _input, _script, _temp, _downloads, _output, _wof, _wf, _rf = '..', 'input', 'script', 'plaza_temp', 'plaza_downloads', '_output', 'without_filters', 'with_filters', 'revigo_filters'
-    if cli_path is not None:
-        if '\r' in cli_path:
-            input_path=cli_path.rsplit('\r', 1)
-        elif '\\' in cli_path:
-            input_path=cli_path.rsplit('\\', 1)
-        elif '/' in cli_path:
-            input_path=cli_path.rsplit('/', 1)
+    if file_path is not None:
+        if '\r' in file_path:
+            input_path=file_path.rsplit('\r', 1)[0]
+        elif '\\' in file_path:
+            input_path=file_path.rsplit('\\', 1)[0]
+        elif '/' in file_path:
+            input_path=file_path.rsplit('/', 1)[0]
     else:
-        input_path = opj(up, _input)
+    	escape('File not imported.')
     script_path = opj(up, _script)
     temp_path = opj(up, _temp)
     plaza_downloads_path = opj(up, _downloads)
@@ -129,7 +118,11 @@ def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
         driver_wait.until(EC.element_to_be_clickable((By.NAME, 'submit'))).click()
     except Exception as e:
         escape('Something went wrong!', e)
-    kill_banner()
+    if "Got it!" in driver.page_source:
+        try:
+            driver.find_element_by_link_text("Got it!").click()
+        except:
+            pass
     # Load inputs
     listd = sorted(os.listdir(input_path))
     try:
@@ -140,26 +133,55 @@ def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
     for n, file in enumerate(files):
         full_name = file
         short_name = "Exp_" + "".join(re.findall(r'\d+', full_name[1:]))
-        kill_banner()
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
         if short_name in driver.page_source:
             driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, short_name))).click()
         else:
-            kill_banner()
             driver.find_element_by_xpath("/html/body/div[2]/div/div/div/div[2]/div[2]/div[2]/form/div[2]/div[1]/div/input").send_keys(short_name)
             driver_wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Create experiment']"))).click()
-            kill_banner()
+            if "Got it!" in driver.page_source:
+                try:
+                    driver.find_element_by_link_text("Got it!").click()
+                except:
+                    pass
             driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, short_name))).click()
             # Import data (gene IDs) to the experiment and map them to Ath
-            kill_banner()
+            if "Got it!" in driver.page_source:
+                try:
+                    driver.find_element_by_link_text("Got it!").click()
+                except:
+                    pass
             driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, 'Import using gene identifiers'))).click()
+            if "Got it!" in driver.page_source:
+                try:
+                    driver.find_element_by_link_text("Got it!").click()
+                except:
+                    pass
             driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div/div[2]/form/input[3]'))).send_keys(str(opj(os.path.abspath(input_path), full_name)))
-            kill_banner()
             driver_wait.until(EC.element_to_be_clickable((By.ID, "map_species_check"))).click()
+            if "Got it!" in driver.page_source:
+                try:
+                    driver.find_element_by_link_text("Got it!").click()
+                except:
+                    pass
             Select(driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="map_species_select"]')))).select_by_visible_text('Arabidopsis thaliana')
-            kill_banner()
             driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div/div[2]/form/input[5]'))).click()
+            if "Got it!" in driver.page_source:
+                try:
+                    driver.find_element_by_link_text("Got it!").click()
+                except:
+                    pass
         # Run GOEA in Plaza
-        kill_banner()
+        time.sleep(2)
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
         try:
             driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, '... the GO enrichment.'))).click()
         except Exception:
@@ -168,37 +190,80 @@ def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
             except TimeoutError as e:
                 escape(e)
             finally:
-                kill_banner()
+                if "Got it!" in driver.page_source:
+                    try:
+                        driver.find_element_by_link_text("Got it!").click()
+                    except:
+                        pass
                 driver_wait.until(EC.element_to_be_clickable((By.ID, "map_species_check"))).click()
+                if "Got it!" in driver.page_source:
+                    try:
+                        driver.find_element_by_link_text("Got it!").click()
+                    except:
+                        pass
                 Select(driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="map_species_select"]')))).select_by_visible_text('Arabidopsis thaliana')
-                kill_banner()
+                if "Got it!" in driver.page_source:
+                    try:
+                        driver.find_element_by_link_text("Got it!").click()
+                    except:
+                        pass
                 driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div/div[2]/form/input[5]'))).click()
                 try:
-                    kill_banner()
+                    if "Got it!" in driver.page_source:
+                        try:
+                            driver.find_element_by_link_text("Got it!").click()
+                        except:
+                            pass
                     driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, '... the GO enrichment.'))).click()
                 except Exception as e:
                     escape("There was probably too many genes. Plaza could not handle that.", e)
-        # NOTE: Set GO cutoff in the webpage (this step seems to me is not reliable, thus I will apply this filter on the final filtered datasets instead)
-        # Compute and download GO enrichment/depletion data:
-        kill_banner()
+        finally:
+            if "Got it!" in driver.page_source:
+                try:
+                    driver.find_element_by_link_text("Got it!").click()
+                except:
+                    pass
+        # Compute GO enrichment:
         driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div[1]/div[3]/form/input"))).click()
-        kill_banner()
-        driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, 'Download GO enrichment/depletion data'))).click()
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
+        # Download GO enrichment/depletion data:
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div[3]/div/a[1]'))).click()
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
+        time.sleep(2)
         for i in os.listdir(temp_path):
             if str(i).startswith('go_enrichment'):
                 copy2(opj(temp_path, i), opj(temp_path, str(n) + "_" + i))
                 os.remove(opj(temp_path, i))
         # Download GO associated genes (only genes from input dataset)
-        kill_banner()
-        driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, 'Download GO data'))).click()
-        kill_banner()
-        driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, 'Functional Annotation'))).click()
-        kill_banner()
-        driver_wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Download GO data (3)']"))).click()
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div/div/div[2]/div/div[3]/div/a[2]'))).click()
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div/div/div/ul/li[3]/a"))).click()
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/div[1]/div[3]/form/input[3]"))).click()
+        if "Got it!" in driver.page_source:
+            try:
+                driver.find_element_by_link_text("Got it!").click()
+            except:
+                pass
         # Proceed to next file, if there is some remaining
         if file != files[-1]:
             driver.get('https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/workbench/experiments')
-            kill_banner()
         else:
             copy_tree(temp_path, plaza_downloads_path)
     rmtree(temp_path)
@@ -260,7 +325,7 @@ def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
     driver.quit()
 
 
-def run_filters():
+def run_filters(gene_minimum=3):
     # filter data based on Revigo reduced GO terms and some additional user defined filters (log2 enrichment, p-value, gene list identity, GO types)
     # please change the filters if needed
     up, _input, _script, _temp, _downloads, _output, _wof, _wf, _rf = '..', 'input', 'script', 'plaza_temp', 'plaza_downloads', '_output', 'without_filters', 'with_filters', 'revigo_filters'
@@ -280,7 +345,7 @@ def run_filters():
                     f = f[f['p-value'] < go_cutoff]
                     f['column counts'] = f.notnull().sum(axis=1)
                     f['gene list duplicated within table'] = f['genes'].duplicated().astype(str)
-                    f = f[(f['column counts'] > 9) & (f['gene list duplicated within table'] == 'False')]
+                    f = f[(f['column counts'] > (6 + gene_minimum)) & (f['gene list duplicated within table'] == 'False')]
                     del f['column counts']
                     del f['gene list duplicated within table']
                     if f.shape[0] != 0 and r.shape[0] != 0:
@@ -292,21 +357,5 @@ def run_filters():
 
 
 if __name__ == "__main__":
-    with_cli = input("Use command line? (y/n)").lower()
-    if with_cli == "y":
-        run_go(cli_path=cli.cli_input()[0], wait_period=cli.cli_input()[1], go_cutoff=cli.cli_input()[2])
-    else:
-        wait_period = int(input("Set maximum time in seconds given to each webpage to load (optimum is 300)"))
-        go_cutoff = int(input("Set GO cutoff (0.05, 0.01, 0.001). Default is 0.01..."))
-        if wait_period in range(10, 600) and go_cutoff not in [0.05, 0.01, 0.001]:
-            print("Incorrect value for cutoff! Using cutoff 0.01...")
-            run_go(wait_period=wait_period)
-        elif wait_period not in range(10, 600) and go_cutoff in [0.05, 0.01, 0.001]:
-            print("Incorrect value for timeout! Using timeout 300s...")
-            run_go(go_cutoff=go_cutoff)
-        elif wait_period in range(10, 600) and go_cutoff in [0.05, 0.01, 0.001]:
-            run_go(wait_period=wait_period, go_cutoff=go_cutoff)
-        else:
-            print("Parameters were not specified correctly. Using default cutoff and timeout values...")
-            run_go()
-
+    run_go(file_path=cli_input()[0], wait_period=cli_input()[1], go_cutoff=cli_input()[2])
+    run_filters(gene_minimum=cli_input([3]))
