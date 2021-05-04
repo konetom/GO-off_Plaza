@@ -1,4 +1,3 @@
-# "another requirement is lxml"
 import os
 import sys
 import re
@@ -15,7 +14,7 @@ def opj(item1, item2):
 
 
 def check_and_install():
-    pkg_list = ['pandas', 'lxml', 'selenium']
+    pkg_list = ['pandas', 'lxml', 'xlrd', 'selenium']
     installed = []
     for pkg in pkg_list:
         try:
@@ -24,6 +23,22 @@ def check_and_install():
         except Exception as e:
             print(e)
         return True if installed == pkg_list else False
+
+
+# gonna be removed if check_and_install runs
+def check_pkg():
+    import pip
+    import importlib
+    libs = ['pandas', 'xlrd', 'selenium']
+    for lib in libs:
+        try:
+            globals()[lib] = importlib.import_module(lib)
+        except ImportError:
+            result = pip.main(['install', lib])
+            if result != 0:
+                raise ImportError
+            else:
+                globals()[lib] = importlib.import_module(lib)
 
 
 def escape(*message):
@@ -46,6 +61,7 @@ def kill_banner():
 
 if __name__ == "__main__":
     if check_and_install():
+        check_pkg():
         import pandas as pd
         from selenium import webdriver
         from selenium.webdriver.support.ui import Select
