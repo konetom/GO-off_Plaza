@@ -9,6 +9,16 @@ from distutils.dir_util import copy_tree
 from getpass import getpass
 
 
+def cli_input():
+    import argparse
+    parser = argparse.ArgumentParser(description="GO-off_Plaza CLI")
+    parser.add_argument('i', '--input_file', required=True, type=str, help="path to input file")
+    parser.add_argument('t', '--page_timeout', requred=False, type=int, default=300, choices=range(601), help="maximum time in seconds given to each webpage to load (default is 300, maximum 600)")
+    parser.add_argument('g', '--minimum_genes', required=False, type=int, default=3, help="filter for minimum number of genes associated with GO (default is 3)")
+    argparsed = parser.parse_args()
+    return argparsed.i, argparsed.t, argparsed.g
+
+
 def opj(item1, item2):
     "Shorter way of joining paths."
     return os.path.join(item1, item2)
@@ -48,7 +58,7 @@ def kill_banner():
         time.sleep(1)
 
 
-if __name__ == "__main__":
+def run_go(cli_path=None, wait_period=300, go_cutoff=0.01):
     if check_and_install():
         import pandas as pd
         from selenium import webdriver
@@ -60,10 +70,17 @@ if __name__ == "__main__":
         escape(check_and_install())
     hidden_key = input("Key: ")
     url_path = 'https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/workbench/logon'
-    wait_period = 300  # maximum time in seconds given to each webpage to load
-    go_cutoff = 0.01
+    # wait_period = 300  # maximum time in seconds given to each webpage to load
     up, _input, _script, _temp, _downloads, _output, _wof, _wf, _rf = '..', 'input', 'script', 'plaza_temp', 'plaza_downloads', '_output', 'without_filters', 'with_filters', 'revigo_filters'
-    input_path = opj(up, _input)
+    if cli_path is not None:
+        if '\r' in cli_path:
+            input_path=cli_path.rsplit('\r', 1)
+        elif '\\' in cli_path:
+            input_path=cli_path.rsplit('\\', 1)
+        elif '/' in cli_path:
+            input_path=cli_path.rsplit('/', 1)
+    else:
+        input_path = opj(up, _input)
     script_path = opj(up, _script)
     temp_path = opj(up, _temp)
     plaza_downloads_path = opj(up, _downloads)
@@ -204,6 +221,8 @@ if __name__ == "__main__":
         gene_lists = pd.DataFrame(([i.split(', ') for i in merge_with_genes['genes'].values]))
         concated = pd.concat([merge_with_genes, gene_lists], axis=1, ignore_index=False, sort=False)
         concated.to_excel(opj(wof_path, go_file.replace('.txt', '') + '(shown_true).xlsx'), index=None)
+
+    # Run Revigo
     driver.get('http://revigo.irb.hr/')
     if 'Accept and Close' in driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').text:
         driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').click()
@@ -238,30 +257,56 @@ if __name__ == "__main__":
             rev_df.to_excel(opj(rf_path, file_without_filters.replace(".xlsx", "_REVIGO.xlsx")), header=True, index=False)
             if file_without_filters != os.listdir(wof_path)[-1]:
                 driver.get('http://revigo.irb.hr/')
-    # last section: filter data based on Revigo reduced GO terms and some additional user defined filters (log2 enrichment, p-value, gene list identity, GO types)
+    driver.quit()
+
+
+def run_filters():
+    # filter data based on Revigo reduced GO terms and some additional user defined filters (log2 enrichment, p-value, gene list identity, GO types)
     # please change the filters if needed
+    up, _input, _script, _temp, _downloads, _output, _wof, _wf, _rf = '..', 'input', 'script', 'plaza_temp', 'plaza_downloads', '_output', 'without_filters', 'with_filters', 'revigo_filters'
+    output_path = opj(up, _output)
+    wof_path = opj(output_path, _wof)
+    wf_path = opj(output_path, _wf)
+    rf_path = opj(output_path, _rf)
+
     rev_listd = sorted(os.listdir(rf_path))
     filterless_listd = sorted(os.listdir(wof_path))
-    for rev_file in rev_listd:
-        for filterless_file in filterless_listd:
-            if rev_file.replace("_REVIGO", "") == filterless_file:
-                r = pd.read_excel(opj(rf_path, rev_file))
-                f = pd.read_excel(opj(wof_path, filterless_file))
-                f = f[f['p-value'] < go_cutoff]
-                f['column counts'] = f.notnull().sum(axis=1)
-                f['gene list duplicated within table'] = f['genes'].duplicated().astype(str)
-                f = f[(f['column counts'] > 9) & (f['gene list duplicated within table'] == 'False')]
-                del f['column counts']
-                del f['gene list duplicated within table']
-                if f.shape[0] != 0 and r.shape[0] != 0:
-                    result = f.merge(r, on='GO IDs')
-                    result = result[(result['#GO-type'] == 'BP') | (result['#GO-type'] == 'MF')]
-                    result = result.sort_values(by=['Log2-Enrichment', 'p-value'], ascending=[False, True])
-                    result = result.iloc[:, list(range(7)) + [-1]]
-                    result['same_enr'] = (result['Log2-Enrichment'] == result.iloc[0, 2]).astype(str)
-                    if result['same_enr'].value_counts()['True'] > 10:
-                        result = result[result['same_enr'] == 'True']
-                    else:
-                        result = result.iloc[:20, :-2]
-                    result.to_excel(opj(wf_path, filterless_file), index=None)
-    driver.quit()
+    if rev_listd is not None:
+        for rev_file in rev_listd:
+            for filterless_file in filterless_listd:
+                if rev_file.replace("_REVIGO", "") == filterless_file:
+                    r = pd.read_excel(opj(rf_path, rev_file))
+                    f = pd.read_excel(opj(wof_path, filterless_file))
+                    f = f[f['p-value'] < go_cutoff]
+                    f['column counts'] = f.notnull().sum(axis=1)
+                    f['gene list duplicated within table'] = f['genes'].duplicated().astype(str)
+                    f = f[(f['column counts'] > 9) & (f['gene list duplicated within table'] == 'False')]
+                    del f['column counts']
+                    del f['gene list duplicated within table']
+                    if f.shape[0] != 0 and r.shape[0] != 0:
+                        result = f.merge(r, on='GO IDs')
+                        # result = result[(result['#GO-type'] == 'BP') | (result['#GO-type'] == 'MF')]
+                        result = result.sort_values(by=['Log2-Enrichment', 'p-value'], ascending=[False, True])
+                        result = result.iloc[:, list(range(7)) + [-1]]
+                        result.to_excel(opj(wf_path, filterless_file), index=None)
+
+
+if __name__ == "__main__":
+    with_cli = input("Use command line? (y/n)").lower()
+    if with_cli == "y":
+        run_go(cli_path=cli.cli_input()[0], wait_period=cli.cli_input()[1], go_cutoff=cli.cli_input()[2])
+    else:
+        wait_period = int(input("Set maximum time in seconds given to each webpage to load (optimum is 300)"))
+        go_cutoff = int(input("Set GO cutoff (0.05, 0.01, 0.001). Default is 0.01..."))
+        if wait_period in range(10, 600) and go_cutoff not in [0.05, 0.01, 0.001]:
+            print("Incorrect value for cutoff! Using cutoff 0.01...")
+            run_go(wait_period=wait_period)
+        elif wait_period not in range(10, 600) and go_cutoff in [0.05, 0.01, 0.001]:
+            print("Incorrect value for timeout! Using timeout 300s...")
+            run_go(go_cutoff=go_cutoff)
+        elif wait_period in range(10, 600) and go_cutoff in [0.05, 0.01, 0.001]:
+            run_go(wait_period=wait_period, go_cutoff=go_cutoff)
+        else:
+            print("Parameters were not specified correctly. Using default cutoff and timeout values...")
+            run_go()
+
