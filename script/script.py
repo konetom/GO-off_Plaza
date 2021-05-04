@@ -61,7 +61,7 @@ def kill_banner():
 
 if __name__ == "__main__":
     if check_and_install():
-        check_pkg():
+        check_pkg()
         import pandas as pd
         from selenium import webdriver
         from selenium.webdriver.support.ui import Select
