@@ -1,39 +1,77 @@
-# GO-off_Plaza
+# GO-off with Plaza
 
-Script for automation of Plaza toolkit for Gene Ontology enrichment analysis on query list of gene IDs.
-    
-Please check my previous script description, where you can find additional information: https://github.com/konetom/GO-off
+
+This is a script for comfortable automation of Plaza toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (Araport11).
+
+Please check my Github page to find additional information: https://github.com/konetom/GO-off
+
+<br>
 
 Introduction
 ------------
-    The output GO sets are used as input in REVIGO online tool which semantically reduces number of GO terms in the dataset.
-    Specific filters (for Log2 enrichment value, p-value and number of genes associated with each GO term) are applied to increase stringency in the final GO table.
+The output from Plaza Dicots v4.0 GOEA is used as an input for REVIGO online tool which semantically reduces number of GO terms in the dataset (dispensability threshold default value is 0.7).
+Specific filters (for GO enrichment p-value and minumal number of genes associated with each GO term) can be applied to increase stringency in the final GO table.
+
+<br>
 
 Required software
 -----------------
-    Python3.8+, modules: "selenium", "pandas", "xmlx", "html5lib", "shutil", "distutils", "getpass"
+Mozilla Firefox (web browser), Python3.8+, UNIX/Linux or Windows OS
 
-Required input
---------------
-    folder named "input" (inside should be one or more files, each containing query list of gene IDs) on same level as the folder "script"
+<br>
+
+Required input file format
+--------------------------
+Single file in text format containing list of Arabidopsis gene IDs, each separated by a newline.
+
+<br>
 
 Output files
 ------------
-    Plaza GOEA output files are saved in folder "plaza_downloads".
-    The processed tables are saved in folder "_output".
-        Revigo output files are saved in "_output/revigo_filters".
-        Final filtered GO tables are in folder "_output/with_filters".
+* Plaza GOEA raw output files are saved in folder "raw_plaza_downloads".
+* The GO tables (in xlsx format) are saved in folder "output":
+    * Plaza raw GOEA table (with associated genes) is saved in "output/without_filters"
+    * Revigo reduced raw GO table is saved in "output/revigo_filters".
+    * Final filtered GOEA table is saved in folder "output/with_filters".
+
+<br>
+
+Usage
+-----
+    positional arguments:
+    input               Input file (including relative or absolute path)
+
+    optional arguments:
+    -h, --help          show this help message and exit
+    --timeout TIMEOUT   Maximum time (in seconds) given to each webpage to fully load {default: 300}
+
+    --min_genes MIN_GENES
+                        Filter for final filtered GO table. Minimum number of genes associated with GO {default: 3}
+
+    --cutoff {0.05,0.01,0.001}
+                        Filter for final filtered GO table. GO Enrichment p-value cutoff {default: 0.01}
+                        options: 0.05, 0.01, 0.001
+
+    --mode {1,2,3}      You can specify how many output files to generate {default: 3}
+                        1: Only raw Plaza GOEA table (with associated genes)
+                        2: Plaza raw GOEA table (with associated genes) and raw Revigo reduced GO table
+                        3: Both raw tables and the final filtered GOEA table (Revigo reduced, p-value filtered GO table with minimum number of associated genes).
+<br>
 
 Warnings
 --------
-    Before running the script, there must be no empty experiment in your Plaza workbench named similarly to input file names (e.g. "Exp_[numbers]").
-    There might be issue if the input file has more than 8000 gene IDs. This can most probably be caused by Plaza, refusing the file import.
+    Before running the script, there must be no empty experiment in your Plaza workbench named similarly to input file name (e.g. "Exp_[some_number]").
+    An error might show if the input file has more than 8000 gene IDs. This is not a sripting issue.
+<br>
 
 Notes
 -----
-    You have to own an active account in Plaza Dicots v4.0. Without it, you cannot run the script.
-    To avoid putting login name and password each time of script running, save login name and password in the "login.py file and define special keyword, that will be used instead of typing your login in the terminal.
+    You have to create an account in Plaza Dicots v4.0 prior running this script. Without login information, you cannot run the script.
+    To avoid putting your login name and password each time of running the script, you can write and save your login name and password in "login.py file (where it is indicated) and there you also define your special unique keyword, which you will be using instead of typing your login in console.
+<br>
+<br>
 
 Acknowledgment
 -----
 Please visit: https://bioinformatics.psb.ugent.be/plaza/pages/credits.
+Also visit: https://github.com/konetom/GO-off
