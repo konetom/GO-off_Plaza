@@ -38,6 +38,18 @@ Output files
 
 Usage
 -----
+Download all files from "script" folder of this GitHub repository.
+Open your console and locate the downloaded files.
+Make sure you have installed Python version 3.8 or newer on your computer.
+Run following line in your console to show help message:
+<br>
+
+<p align="center">
+   <b>
+python3 GO-off_Plaza.py -h
+   </b>
+</p>
+
     positional arguments:
     input               Input file (including relative or absolute path)
 
@@ -60,15 +72,17 @@ Usage
 
 Warnings
 --------
-    Before running the script, there must be no empty experiment in your Plaza workbench named similarly to input file name (e.g. "Exp_[some_number]").
-    An error might show if the input file has more than 8000 gene IDs. This is not a sripting issue.
+Before running the script, there must be no empty experiment in your Plaza workbench named similarly to input file name (e.g. "Exp_[some_number]").
+An error might show if the input file has more than 8000 gene IDs. This is not a sripting issue.
+
 <br>
 
 Notes
 -----
-    You have to create an account in Plaza Dicots v4.0 prior running this script. Without login information, you cannot run the script.
-    To avoid putting your login name and password each time of running the script, you can write and save your login name and password in "login.py file (where it is indicated) and there you also define your special unique keyword, which you will be using instead of typing your login in console.
-<br>
+You have to create an account in Plaza Dicots v4.0 prior running this script. Without login information, you cannot run the script. <br>
+To avoid putting your login name and password each time of running the script, you can write and save your login name and login password in "login.py file. <br>
+There you also define your special unique keyword, which you will be using instead of typing your login in console. <br>
+
 <br>
 
 Acknowledgment
