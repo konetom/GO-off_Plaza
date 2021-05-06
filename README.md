@@ -1,7 +1,7 @@
 # GO-off with Plaza
 
 
-This is a script for comfortable automation of Plaza toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (Araport11).
+This is a script for comfortable automation of Plaza toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (Araport11). <br>
 
 Please check my Github page to find additional information: https://github.com/konetom/GO-off
 
@@ -9,7 +9,7 @@ Please check my Github page to find additional information: https://github.com/k
 
 Introduction
 ------------
-The output from Plaza Dicots v4.0 GOEA is used as an input for REVIGO online tool which semantically reduces number of GO terms in the dataset (dispensability threshold default value is 0.7).
+The output from Plaza Dicots v4.0 GOEA is used as an input for REVIGO online tool which semantically reduces number of GO terms in the dataset (dispensability threshold default value is 0.7). <br>
 Specific filters (for GO enrichment p-value and minumal number of genes associated with each GO term) can be applied to increase stringency in the final GO table.
 
 <br>
@@ -22,7 +22,9 @@ Mozilla Firefox (web browser), Python3.8+, UNIX/Linux or Windows OS
 
 Required input file format
 --------------------------
-Single file in text format containing list of Arabidopsis gene IDs, each separated by a newline.
+Single file in text format containing list of Arabidopsis gene IDs, each separated by a newline. <br>
+If you don't have any data yet, you can use a file containing a list of gene IDs. <br>
+The file can be found in the "input" folder of this GitHub repository.
 
 <br>
 
@@ -80,7 +82,7 @@ An error might show if the input file has more than 8000 gene IDs. This is not a
 Notes
 -----
 You have to create an account in Plaza Dicots v4.0 prior running this script. Without login information, you cannot run the script. <br>
-To avoid putting your login name and password each time of running the script, you can write and save your login name and login password in "login.py file. <br>
+To avoid putting your login name and password each time of running the script, you can write and save your login name and login password in the "login.py" file. <br>
 There you also define your special unique keyword, which you will be using instead of typing your login in console. <br>
 
 <br>
