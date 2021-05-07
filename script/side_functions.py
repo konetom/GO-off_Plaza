@@ -55,7 +55,6 @@ def drive_driver():
     """Run Firefox driver with adjusted profile."""
     import os
     import run_functions
-    import main
     if "geckodriver.exe" in os.listdir(os.getcwd()):
         webdriver = extra_modules()[1]
         plaza_downloads_path = run_functions.plaza_downloads_path
