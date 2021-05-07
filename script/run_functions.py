@@ -70,10 +70,15 @@ def run_plaza(file_path=None, wait_period=300):
     full_name = file_name
     short_name = "Exp_" + "".join(re.findall(r"\d+", full_name[1:]))
     kill_banner(driver)
+    kill_banner(driver)
+    kill_banner(driver)
     if short_name in driver.page_source:
+        kill_banner(driver)
         driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, short_name))).click()
     else:
+        kill_banner(driver)
         driver.find_element_by_xpath("/html/body/div[2]/div/div/div/div[2]/div[2]/div[2]/form/div[2]/div[1]/div/input").send_keys(short_name)
+        kill_banner(driver)
         driver_wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@value='Create experiment']"))).click()
         kill_banner(driver)
         driver_wait.until(EC.element_to_be_clickable((By.PARTIAL_LINK_TEXT, short_name))).click()
