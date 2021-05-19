@@ -12,7 +12,7 @@ wof_path, wf_path, rf_path = opj(output_path, _wof), opj(output_path, _wf), opj(
 pd, webdriver, Select, WebDriverWait, By, EC = extra_modules()
 
 
-def run_plaza(file_path=None, wait_period=300):
+def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
     from getpass import getpass
     global _wof, _wf, _rf, plaza_downloads_path, output_path, wof_path, wf_path, rf_path
     global pd, webdriver, Select, WebDriverWait, By, EC, driver_wait
@@ -133,6 +133,7 @@ def run_plaza(file_path=None, wait_period=300):
     kill_banner(driver)
     driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/div[1]/div[3]/form/input[3]"))).click()
 
+    time.sleep(2)
     driver.quit()
 
     # Process GO tables
@@ -146,8 +147,9 @@ def run_plaza(file_path=None, wait_period=300):
     go_df['Shown'] = go_df['Shown'].astype(str)
     go_df = go_df[go_df['Shown'] == 'True']
     del go_df['Shown']
+    go_df = go_df[go_df['p-value'] < go_cutoff]
     go_df = go_df[go_df['Log2-Enrichment'] > 0].sort_values(by=['Log2-Enrichment'], ascending=False)
-    
+
     merge_with_genes = go_df.merge(genes_df, on='GO IDs')
     merge_with_genes['genes'] = [", ".join([j for j in sorted(i.split(','))]) for i in merge_with_genes['genes'].values]
     gene_lists = pd.DataFrame(([i.split(', ') for i in merge_with_genes['genes'].values]))
@@ -200,7 +202,7 @@ def run_revigo(wait_period=300):
     driver.quit()
 
 
-def run_filters(go_cutoff=0.01, gene_minimum=3):
+def run_filters(gene_minimum=3):
     global _wof, _wf, _rf, wof_path, wf_path, rf_path, pd
     
     rev_file = os.listdir(rf_path)[0]
@@ -210,7 +212,6 @@ def run_filters(go_cutoff=0.01, gene_minimum=3):
         r = pd.read_excel(opj(rf_path, rev_file))
         f = pd.read_excel(opj(wof_path, filterless_file))
         if f.shape[0] != 0:
-            f = f[f['p-value'] < go_cutoff]
             f['column counts'] = f.notnull().sum(axis=1)
             f['gene list duplicated within table'] = f['genes'].duplicated().astype(str)
             f = f[(f['column counts'] > (6 + gene_minimum)) & (f['gene list duplicated within table'] == 'False')]
