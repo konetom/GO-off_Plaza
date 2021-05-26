@@ -67,7 +67,7 @@ python3 GO-off_Plaza.py -h
                         options: 0.05, 0.01, 0.001
 
     --mode {1,2,3}      You can specify how many output files to generate {default: 3}
-                        1: Only raw Plaza GOEA table (with associated genes)
+                        1: Only raw Plaza GOEA table (with associated genes, p-value filtered)
                         2: Plaza raw GOEA table (with associated genes) and raw Revigo reduced GO table
                         3: Both raw tables and the final filtered GOEA table (Revigo reduced, p-value filtered GO table with minimum number of associated genes).
 <br>
