@@ -77,6 +77,8 @@ def escape(*message):
 
 def kill_banner(driver):
     """Check and remove banner from page."""
+    import time
+    time.sleep(0.5)
     if "Got it!" in driver.page_source:
         try:
             driver.find_element_by_link_text("Got it!").click()
