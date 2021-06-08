@@ -75,7 +75,7 @@ python3 GO-off_Plaza.py -h
 Warnings
 --------
 Before running the script, there must be no empty experiment in your Plaza workbench named similarly to input file name (e.g. "Exp_[some_number]").
-An error might show if the input file has more than 8000 gene IDs. This is not a sripting issue.
+An error might show if the input file has more than 8000 gene IDs. This is not a Python script-related issue.
 
 <br>
 
