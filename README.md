@@ -30,6 +30,7 @@ The file can be found in the "input" folder of this GitHub repository.
 
 Output files
 ------------
+All output folders are generated inside the "script" folder
 * Folder "output_date_time" (folder name including date and time to distinguish outputs):
     * Plaza GOEA raw output files are saved in "raw_plaza_downloads".
     * Plaza raw GOEA table (with associated genes) is saved in "without_filters"
