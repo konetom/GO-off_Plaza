@@ -1,7 +1,7 @@
 # GO-off with Plaza
 
 
-This is a script for comfortable automation of Plaza toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (Araport11). <br>
+This is a script for comfortable automation of Plaza v4.0 toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (TAIR10). <br>
 
 Please check my Github page to find additional information: https://github.com/konetom/GO-off
 
@@ -30,11 +30,11 @@ The file can be found in the "input" folder of this GitHub repository.
 
 Output files
 ------------
-* Plaza GOEA raw output files are saved in folder "raw_plaza_downloads".
-* The GO tables (in xlsx format) are saved in folder "output":
-    * Plaza raw GOEA table (with associated genes) is saved in "output/without_filters"
-    * Revigo reduced raw GO table is saved in "output/revigo_filters".
-    * Final filtered GOEA table is saved in folder "output/with_filters".
+* Folder "output_date_time" (folder name including date and time to distinguish outputs):
+    * Plaza GOEA raw output files are saved in "raw_plaza_downloads".
+    * Plaza raw GOEA table (with associated genes) is saved in "without_filters"
+    * Revigo reduced raw GO table is saved in "revigo_filters".
+    * Final filtered GOEA table is saved in "with_filters".
 
 <br>
 
