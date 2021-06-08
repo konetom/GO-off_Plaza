@@ -25,7 +25,7 @@ def check_and_install():
         subprocess.check_call(['sudo', 'apt', 'install', 'python3-pip'])
     except Exception as e:
         print(e)
-    pkg_list = ['pandas', 'lxml', 'xlrd', 'selenium', 'argparse']
+    pkg_list = ['pandas', 'lxml', 'xlrd', 'selenium', 'argparse', 'termcolor']
     installed = []
     for pkg in pkg_list:
         try:
@@ -84,3 +84,19 @@ def kill_banner(driver):
             driver.find_element_by_link_text("Got it!").click()
         except:
             pass
+
+def say_bye():
+    from termcolor import colored as tc
+    print(tc(r"""
+..................................................
+GO Enrichment Analysis is
+                                               /|\
+||==\\       _===_     ||\       ||  //=====   |||
+||   \\    //     \\   ||\\      ||  ||        |||
+||    ||  ||       ||  ||  \\    ||  ||        |||
+||    ||  ||       ||  ||   \\   ||  ||====    |||
+||   //   ||       ||  ||     \\ ||  ||        |||
+||==//     \\_____//   ||       \||  \\=====   \|/
+                                                O
+..................................................
+""", 'grey', 'on_green', attrs=['bold', 'blink']))
