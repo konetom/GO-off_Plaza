@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 if __name__ == "__main__":
     import os
     from side_functions import check_and_install, cli_input, say_bye
