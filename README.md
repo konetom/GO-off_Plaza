@@ -1,7 +1,7 @@
 # GO-off with Plaza
 
 
-This is a script for comfortable automation of Plaza v4.0 toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (TAIR10). <br>
+This is a Python script for comfortable automation of Plaza v4.0 toolkit for Gene Ontology enrichment analysis (GOEA) with a query list of Arabidopsis thaliana gene IDs (TAIR10). <br>
 
 Please check my Github page to find additional information: https://github.com/konetom/GO-off
 
