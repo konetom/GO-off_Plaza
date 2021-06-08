@@ -2,13 +2,14 @@ import os
 import sys
 import re
 import time
+import datetime
 from shutil import rmtree, copy2
 from distutils.dir_util import copy_tree
 from side_functions import check_and_install, extra_modules, drive_driver, escape, opj, kill_banner
 
-plaza_downloads_path, output_path = 'raw_plaza_downloads', 'output'
-_wof, _wf, _rf = 'without_filters', 'with_filters', 'revigo_filters'
-wof_path, wf_path, rf_path = opj(output_path, _wof), opj(output_path, _wf), opj(output_path, _rf)
+output_path = 'output_'+str(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+plaza_downloads, _wof, _wf, _rf = 'raw_plaza_downloads', 'without_filters', 'with_filters', 'revigo_filters'
+plaza_downloads_path, wof_path, wf_path, rf_path = opj(output_path, plaza_downloads), opj(output_path, _wof), opj(output_path, _wf), opj(output_path, _rf)
 pd, webdriver, Select, WebDriverWait, By, EC = extra_modules()
 
 
@@ -16,31 +17,16 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
     from getpass import getpass
     global _wof, _wf, _rf, plaza_downloads_path, output_path, wof_path, wf_path, rf_path
     global pd, webdriver, Select, WebDriverWait, By, EC, driver_wait
-    
-    plaza_url = 'https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/workbench/logon'
-    
+   
     if '/' in file_path:
         input_path, file_name = file_path.rsplit('/', 1)[0], file_path.rsplit('/', 1)[-1]
     elif '\\' in file_path:
         input_path, file_name = file_path.rsplit('\\', 1)[0], file_path.rsplit('\\', 1)[-1]
     elif r'\\' in file_path:
-        escape("Put valid path to your file.")
+        escape("Invalid path.")
     else:
-        file_name = file_path
-
-    if plaza_downloads_path in os.listdir():
-        rmtree(plaza_downloads_path)
-        os.mkdir(plaza_downloads_path)
-    else:
-        os.mkdir(plaza_downloads_path)
-    
-    if output_path in os.listdir():
-        rmtree(output_path)
-    os.mkdir(output_path)
-    os.mkdir(wof_path)
-    os.mkdir(wf_path)
-    os.mkdir(rf_path)
-    
+        input_path, file_name = '.', file_path
+   
     if "login.py" in os.listdir():
         import login
         hidden_key = input("Key: ")
@@ -53,9 +39,16 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
         login_name = input('Enter your username: ')
         login_password = getpass(prompt='Enter your password: ')
 
+    os.mkdir(output_path)
+    os.mkdir(plaza_downloads_path)
+    os.mkdir(wof_path)
+    os.mkdir(wf_path)
+    os.mkdir(rf_path)
+
     # Login to Plaza Dicots v4.0:
     driver = drive_driver()
     driver_wait = WebDriverWait(driver, wait_period, poll_frequency=1)
+    plaza_url = 'https://bioinformatics.psb.ugent.be/plaza/versions/plaza_v4_dicots/workbench/logon'
 
     driver.get(url=plaza_url)
     driver.find_element_by_id("wb_login").send_keys(login_name)
@@ -169,16 +162,22 @@ def run_revigo(wait_period=300):
     for_revigo = go_df.loc[:, ['GO IDs', 'p-value']]
 
     if go_df.shape[0] != 0:
+        start = time.time()
         driver.get('http://revigo.irb.hr/')
-        if 'Accept and Close' in driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').text:
-            driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').click()
-    
+        while 'Accept and Close' not in driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').text:
+            driver.get('http://revigo.irb.hr/')
+            time.sleep(5)
+            duration = time.time() - starting
+            if duration > 60.0:
+                escape("There is some problem with Revigo webpage. Please try to run the script again.")
+
+        driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').click()
         driver.find_element_by_xpath('//*[@id="ctl00_MasterContent_txtGOInput"]').send_keys(for_revigo.to_string(index=False, header=False).replace(' GO', 'GO').replace('  ', ' '))
         dbase = driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_lstSpecies"]')))
         Select(dbase).select_by_visible_text('Arabidopsis thaliana')
         driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_btnStart"]'))).click()
-        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ui-id-1"]')))
-        
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ui-id-1"]')))        
+
         if "Biological Process" in driver.find_element_by_xpath('//*[@id="ui-id-1"]').text:
             driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ui-id-1"]'))).click()
             time.sleep(2)
