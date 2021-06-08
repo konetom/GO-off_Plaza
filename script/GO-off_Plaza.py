@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
+
 if __name__ == "__main__":
     import os
-    from side_functions import check_and_install, cli_input
+    from side_functions import check_and_install, cli_input, say_bye
     if "log.txt" not in os.listdir():
         check_and_install()
     input_file_path, wait_period, go_cutoff, gene_minimum, output_mode = cli_input()
@@ -10,6 +11,8 @@ if __name__ == "__main__":
         run_plaza(file_path=input_file_path, wait_period=wait_period, go_cutoff=go_cutoff)
         if output_mode == 2:
             run_revigo(wait_period=wait_period)
+            say_bye()
         else:
             run_revigo(wait_period=wait_period)
             run_filters(gene_minimum=gene_minimum)
+            say_bye()
