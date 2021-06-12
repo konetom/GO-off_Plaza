@@ -41,9 +41,6 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
 
     os.mkdir(output_path)
     os.mkdir(plaza_downloads_path)
-    os.mkdir(wof_path)
-    os.mkdir(wf_path)
-    os.mkdir(rf_path)
 
     # Login to Plaza Dicots v4.0:
     driver = drive_driver()
@@ -126,8 +123,6 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
     kill_banner(driver)
     driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/div[1]/div[3]/form/input[3]"))).click()
 
-    time.sleep(2)
-    driver.quit()
 
     # Process GO tables
     listd = sorted(os.listdir(plaza_downloads_path))
@@ -147,8 +142,11 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
     merge_with_genes['genes'] = [", ".join([j for j in sorted(i.split(','))]) for i in merge_with_genes['genes'].values]
     gene_lists = pd.DataFrame(([i.split(', ') for i in merge_with_genes['genes'].values]))
     concated = pd.concat([merge_with_genes, gene_lists], axis=1, ignore_index=False, sort=False)
+    os.mkdir(wof_path)
     concated.to_excel(opj(wof_path, go_file.replace('.txt', '') + '(shown_true).xlsx'), index=None)
 
+    time.sleep(5)
+    driver.quit()
 
 def run_revigo(wait_period=300):
     global _wof, _wf, _rf, plaza_downloads_path, output_path, wof_path, wf_path, rf_path
@@ -197,6 +195,7 @@ def run_revigo(wait_period=300):
                     rev_df_3 = pd.DataFrame({'GO IDs': get_table3.iloc[2:, 0], 'dispensability': (get_table3.iloc[2:, 6]).astype(float)})
                     rev_df = pd.concat([rev_df, rev_df_3])
             rev_df = rev_df[rev_df['dispensability'] < 0.7]
+            os.mkdir(rf_path)
             rev_df.to_excel(opj(rf_path, file_without_filters.replace(".xlsx", "_REVIGO.xlsx")), header=True, index=False)
     driver.quit()
 
@@ -221,4 +220,5 @@ def run_filters(gene_minimum=3):
                 result = result.sort_values(by=['Log2-Enrichment', 'p-value'], ascending=[False, True])
                 result = result.iloc[:, list(range(7)) + [-1]]
                 del result['dispensability']
+                os.mkdir(wf_path)
                 result.to_excel(opj(wf_path, filterless_file.replace(".xlsx", "_filtered.xlsx")), index=None)
