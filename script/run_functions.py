@@ -169,7 +169,7 @@ def run_revigo(wait_period=300):
             if duration > 60.0:
                 escape("There is some problem with Revigo webpage. Please try to run the script again.")
 
-        driver.find_element_by_xpath('/html/body/div[2]/div[3]/div/button').click()
+        driver.find_element_by_xpath('/html/body/div[6]/div[3]/div/button').click()
         driver.find_element_by_xpath('//*[@id="ctl00_MasterContent_txtGOInput"]').send_keys(for_revigo.to_string(index=False, header=False).replace(' GO', 'GO').replace('  ', ' '))
         dbase = driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_lstSpecies"]')))
         Select(dbase).select_by_visible_text('Arabidopsis thaliana')
