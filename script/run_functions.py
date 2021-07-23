@@ -160,16 +160,8 @@ def run_revigo(wait_period=300):
     for_revigo = go_df.loc[:, ['GO IDs', 'p-value']]
 
     if go_df.shape[0] != 0:
-        start = time.time()
         driver.get('http://revigo.irb.hr/')
-        while 'Accept and Close' not in driver.find_element_by_xpath('/html/body/div[6]/div[3]/div/button').text:
-            driver.get('http://revigo.irb.hr/')
-            time.sleep(5)
-            duration = time.time() - starting
-            if duration > 60.0:
-                escape("There is some problem with Revigo webpage. Please try to run the script again.")
-
-        driver.find_element_by_xpath('/html/body/div[6]/div[3]/div/button').click()
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Accept and Close"]'))).click()        
         driver.find_element_by_xpath('//*[@id="ctl00_MasterContent_txtGOInput"]').send_keys(for_revigo.to_string(index=False, header=False).replace(' GO', 'GO').replace('  ', ' '))
         dbase = driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_lstSpecies"]')))
         Select(dbase).select_by_visible_text('Arabidopsis thaliana')
