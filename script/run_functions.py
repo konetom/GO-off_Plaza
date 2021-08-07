@@ -5,9 +5,10 @@ import time
 import datetime
 from shutil import rmtree, copy2
 from distutils.dir_util import copy_tree
-from side_functions import check_and_install, extra_modules, drive_driver, escape, opj, kill_banner
+from side_functions import check_and_install, extra_modules, drive_driver, escape, opj, kill_banner, cli_input
 
-output_path = 'output_'+str(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
+*balast, output_dir = cli_input()
+output_path = os.path.join(output_dir, 'output_'+str(datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")))
 plaza_downloads, _wof, _wf, _rf = 'raw_plaza_downloads', 'without_filters', 'with_filters', 'revigo_filters'
 plaza_downloads_path, wof_path, wf_path, rf_path = opj(output_path, plaza_downloads), opj(output_path, _wof), opj(output_path, _wf), opj(output_path, _rf)
 pd, webdriver, Select, WebDriverWait, By, EC = extra_modules()
