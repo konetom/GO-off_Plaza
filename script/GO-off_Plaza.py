@@ -10,10 +10,7 @@ if input_file_path is not None:
     run_plaza(file_path=input_file_path, wait_period=wait_period, go_cutoff=go_cutoff)
     if output_mode == 2:
         run_revigo(wait_period=wait_period)
-        say_bye()
-    elif output_mode == 3:
+    else:
         run_revigo(wait_period=wait_period)
         run_filters(gene_minimum=gene_minimum)
-        say_bye()
-    else:            
-        say_bye()
+    say_bye()
