@@ -6,8 +6,9 @@ def cli_input():
     parser.add_argument('--min_genes', required=False, type=int, default=3, help="Filter for final filtered GO table. Minimum number of genes associated with GO {default: 3}\n ")
     parser.add_argument('--cutoff', required=False, type=float, default=0.01, choices=[0.05, 0.01, 0.001], help="Filter for final filtered GO table. GO Enrichment p-value cutoff {default: 0.01}\noptions: 0.05, 0.01, 0.001\n ")
     parser.add_argument('--mode', required=False, type=int, default=3, choices=[1, 2, 3], help="You can specify how many output files to generate {default: 3}\n1: Only raw Plaza GOEA table (with associated genes) \n2: Plaza raw GOEA table (with associated genes) and raw Revigo reduced GO table \n3: Both raw tables and the final filtered GOEA table (Revigo reduced, p-value filtered GO table with minimum number of associated genes). \n")
+    parser.add_argument('--output', type=str, help="Absolute path to the output directory")
     argparsed = parser.parse_args()
-    returned = argparsed.input, argparsed.timeout, argparsed.cutoff, argparsed.min_genes, argparsed.mode
+    returned = argparsed.input, argparsed.timeout, argparsed.cutoff, argparsed.min_genes, argparsed.mode, argparsed.output
     return returned
 
 
