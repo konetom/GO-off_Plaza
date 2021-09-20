@@ -123,7 +123,8 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
     driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div/div/div/ul/li[3]/a"))).click()
     kill_banner(driver)
     driver_wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/div[2]/div/div/div/div/div/div/div[3]/div/div[1]/div[3]/form/input[3]"))).click()
-
+    time.sleep(3)
+    driver.quit()
 
     # Process GO tables
     listd = sorted(os.listdir(plaza_downloads_path))
@@ -145,9 +146,6 @@ def run_plaza(file_path=None, wait_period=300, go_cutoff=0.01):
     concated = pd.concat([merge_with_genes, gene_lists], axis=1, ignore_index=False, sort=False)
     os.mkdir(wof_path)
     concated.to_excel(opj(wof_path, go_file.replace('.txt', '') + '(shown_true).xlsx'), index=None)
-
-    time.sleep(5)
-    driver.quit()
 
 def run_revigo(wait_period=300):
     global _wof, _wf, _rf, plaza_downloads_path, output_path, wof_path, wf_path, rf_path
