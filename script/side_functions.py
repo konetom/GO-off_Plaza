@@ -1,6 +1,6 @@
 def cli_input():
     import argparse
-    parser = argparse.ArgumentParser(description="GO-off with Plaza (by Ejave)", formatter_class=argparse.RawTextHelpFormatter, epilog="Script for automation of Plaza toolkit for Gene Ontology enrichment analysis on query list of gene IDs. \nPlease check my Github page to find additional information: https://github.com/konetom/GO-off_Plaza")
+    parser = argparse.ArgumentParser(description="GO-off with Plaza (by konetom)", formatter_class=argparse.RawTextHelpFormatter, epilog="Script for automation of Plaza toolkit for Gene Ontology enrichment analysis on query list of gene IDs. \nPlease check my Github page to find additional information: https://github.com/konetom/GO-off_Plaza")
     parser.add_argument('input', type=str, help="Input file (including relative or absolute path)")
     parser.add_argument('--timeout', required=False, type=int, default=300, help="Maximum time (in seconds) given to each webpage to fully load {default: 300}\n ")
     parser.add_argument('--min_genes', required=False, type=int, default=3, help="Filter for final filtered GO table. Minimum number of genes associated with GO {default: 3}\n ")
@@ -100,4 +100,6 @@ GO Enrichment Analysis is
 ||==//     \\_____//   ||       \||  \\=====   \|/
                                                 O
 ..................................................
+
+
 """, 'grey', 'on_green', attrs=['bold', 'blink']))
