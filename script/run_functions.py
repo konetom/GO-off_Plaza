@@ -160,7 +160,7 @@ def run_revigo(wait_period=300):
 
     if go_df.shape[0] != 0:
         driver.get('http://revigo.irb.hr/')
-        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Accept and Close"]'))).click()        
+        driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//button[text()="Accept all cookies"]'))).click()
         driver.find_element_by_xpath('//*[@id="ctl00_MasterContent_txtGOInput"]').send_keys(for_revigo.to_string(index=False, header=False).replace(' GO', 'GO').replace('  ', ' '))
         dbase = driver_wait.until(EC.element_to_be_clickable((By.XPATH, '//*[@id="ctl00_MasterContent_lstSpecies"]')))
         Select(dbase).select_by_visible_text('Arabidopsis thaliana')
